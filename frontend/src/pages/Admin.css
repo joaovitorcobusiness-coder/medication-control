@@ -1,0 +1,157 @@
+.admin-page {
+  min-height: 100vh;
+  padding-bottom: 20px;
+}
+
+.admin-page h1 {
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+.stats-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stat-item h3 {
+  font-size: 36px;
+  margin: 0;
+  color: var(--primary-color);
+}
+
+.stat-item p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.stat-icon {
+  font-size: 24px;
+  color: var(--primary-color);
+}
+
+.users-section {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.users-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 40px;
+}
+
+.users-table {
+  width: 100%;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.5fr 1.5fr 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+}
+
+.table-row:hover {
+  background-color: var(--background-light);
+}
+
+.user-name,
+.user-email,
+.user-phone,
+.user-cpf,
+.user-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.user-icon {
+  font-size: 16px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .table-header {
+    display: none;
+  }
+
+  .table-row {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-bottom: 8px;
+  }
+
+  .user-name,
+  .user-email,
+  .user-phone,
+  .user-cpf,
+  .user-date {
+    justify-content: space-between;
+  }
+
+  .user-name::before {
+    content: "Nome: ";
+    font-weight: 600;
+  }
+
+  .user-email::before {
+    content: "Email: ";
+    font-weight: 600;
+  }
+
+  .user-phone::before {
+    content: "Telefone: ";
+    font-weight: 600;
+  }
+
+  .user-cpf::before {
+    content: "CPF: ";
+    font-weight: 600;
+  }
+
+  .user-date::before {
+    content: "Registro: ";
+    font-weight: 600;
+  }
+}

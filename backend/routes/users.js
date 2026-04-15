@@ -127,4 +127,44 @@ router.get('/stats', authMiddleware, async (req, res) => {
   }
 });
 
+// Listar todos os usuários (para admin)
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const results = await query(
+      'SELECT id, name, email, phone, cpf, created_at FROM users ORDER BY created_at DESC'
+    );
+    
+    res.json({
+      success: true,
+      users: results,
+    });
+  } catch (error) {
+    console.error('Error listing users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao listar usuários',
+    });
+  }
+});
+
+// Rota temporária para teste sem autenticação
+router.get('/public', async (req, res) => {
+  try {
+    const results = await query(
+      'SELECT id, name, email, phone, cpf, created_at FROM users ORDER BY created_at DESC'
+    );
+    
+    res.json({
+      success: true,
+      users: results,
+    });
+  } catch (error) {
+    console.error('Error listing users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao listar usuários',
+    });
+  }
+});
+
 module.exports = router;

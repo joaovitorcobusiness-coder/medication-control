@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -46,6 +46,7 @@ export const userAPI = {
   getProfile: () => api.get('/users/profile'),
   updateProfile: (userData) => api.put('/users/profile', userData),
   getStats: () => api.get('/users/stats'),
+  listUsers: () => api.get('/users/public'), // Rota temporária sem autenticação para teste
 };
 
 // Medication endpoints

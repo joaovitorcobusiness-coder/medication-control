@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import MedicationsPage from './pages/MedicationsPage';
 import HistoryPage from './pages/HistoryPage';
 import SettingsPage from './pages/SettingsPage';
+import AdminPage from './pages/AdminPage';
 import PrivateRoute from './components/PrivateRoute';
 import { ToastProvider } from './components/Toast';
 import { registerServiceWorker, registerBackgroundSync } from './utils/serviceWorkerUtils';
@@ -59,6 +60,7 @@ function App() {
             <Route path="/medicamentos" element={<PrivateRoute isAuthenticated={isAuthenticated}><MedicationsPage /></PrivateRoute>} />
             <Route path="/historico" element={<PrivateRoute isAuthenticated={isAuthenticated}><HistoryPage /></PrivateRoute>} />
             <Route path="/configuracoes" element={<PrivateRoute isAuthenticated={isAuthenticated}><SettingsPage /></PrivateRoute>} />
+            <Route path="/admin" element={<PrivateRoute isAuthenticated={isAuthenticated}><AdminPage /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

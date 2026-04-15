@@ -5,7 +5,7 @@ import { getOrCreateDeviceId, getDeviceInfo } from '../utils/deviceUtils';
 import { useToast } from '../components/Toast';
 import Layout from '../components/Layout';
 import './Settings.css';
-import { FiLogOut, FiSmartphone, FiTrash2, FiCopy, FiCheck } from 'react-icons/fi';
+import { FiLogOut, FiSmartphone, FiTrash2, FiCopy, FiCheck, FiUsers } from 'react-icons/fi';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -93,18 +93,17 @@ export default function SettingsPage() {
     } catch (err) {
       addToast('Erro ao registrar dispositivo', 'error');
     }
-    }
   };
 
   const handleDeleteDevice = async (deviceId) => {
     if (window.confirm('Tem certeza que deseja remover este dispositivo?')) {
       try {
         await iotAPI.deleteDevice(deviceId);
-        showToast('Dispositivo removido com sucesso', 'success');
+        addToast('Dispositivo removido com sucesso', 'success');
         loadDevices();
       } catch (error) {
         console.error('Erro ao deletar dispositivo:', error);
-        showToast('Erro ao remover dispositivo', 'error');
+        addToast('Erro ao remover dispositivo', 'error');
       }
     }
   };
@@ -318,6 +317,13 @@ export default function SettingsPage() {
         {/* Account Settings */}
         <div className="settings-section card">
           <h2>Conta</h2>
+          <button 
+            className="btn btn-secondary"
+            onClick={() => navigate('/admin')}
+            style={{ marginBottom: '16px' }}
+          >
+            <FiUsers /> Ver Contas Registradas
+          </button>
           <button 
             className="btn btn-danger"
             onClick={handleLogout}

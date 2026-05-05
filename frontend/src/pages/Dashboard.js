@@ -51,8 +51,9 @@ export default function Dashboard() {
       setStats(statsRes.data.stats);
       setTodaySchedules(schedulesRes.data.schedules || []);
     } catch (err) {
-      setError('Erro ao carregar dados');
-      console.error(err);
+      const apiMessage = err.response?.data?.message || err.message || 'Erro desconhecido';
+      setError(`Erro ao carregar dados: ${apiMessage}`);
+      console.error('Dashboard loadData error:', err);
     } finally {
       setLoading(false);
     }

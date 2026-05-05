@@ -1,4 +1,13 @@
-# Guia de Início Rápido - Meus Remédios
+# Guia de Início Rápido - Sistema Inteligente de Controle de Medicamentos para Idosos
+
+## ⚡ Setup Completo do Sistema
+
+### Visão Geral
+Este sistema contém:
+- **Backend API** (Node.js/Express)
+- **Frontend Web** (React)
+- **Caixa IoT** (ESP32 com sensores)
+- **Banco de Dados** (MySQL)
 
 ## ⚡ Setup em 5 Minutos
 

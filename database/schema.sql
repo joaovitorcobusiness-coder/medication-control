@@ -106,6 +106,22 @@ CREATE TABLE iot_devices (
     INDEX idx_user_id (user_id)
 );
 
+-- Tabela de eventos da caixa IoT
+CREATE TABLE iot_events (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    device_id VARCHAR(255) NOT NULL,
+    user_id INT NOT NULL,
+    compartment_id INT,
+    event_type VARCHAR(50) NOT NULL,
+    description TEXT,
+    event_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (device_id) REFERENCES iot_devices(device_id) ON DELETE CASCADE,
+    INDEX idx_device_timestamp (device_id, event_timestamp),
+    INDEX idx_user_timestamp (user_id, event_timestamp)
+);
+
 -- Tabela de logs de atividade
 CREATE TABLE activity_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,

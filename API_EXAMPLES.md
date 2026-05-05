@@ -485,6 +485,72 @@ curl -X GET http://localhost:5000/api/iot/notifications \
   -H "Authorization: Bearer {token}"
 ```
 
+### Registrar Evento IoT (ESP32)
+
+Este endpoint é chamado pela caixa IoT (ESP32) para registrar eventos
+
+```bash
+curl -X POST http://localhost:5000/api/iot/events \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_id": "esp32-medication-box-001",
+    "compartment_id": 1,
+    "event_type": "opened",
+    "description": "Caixa de medicamentos aberta",
+    "timestamp": "2026-04-13T08:00:00Z"
+  }'
+```
+
+**Tipos de Eventos:**
+- `opened` - Caixa foi aberta
+- `taken` - Medicamento foi tomado
+- `late` - Medicamento tomado com atraso
+- `missed` - Medicamento não foi tomado
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "event_id": 1,
+  "message": "Evento registrado com sucesso",
+  "timestamp": "2026-04-13T08:00:00Z"
+}
+```
+
+### Obter Eventos IoT
+
+```bash
+curl -X GET "http://localhost:5000/api/iot/events/esp32-medication-box-001?limit=50" \
+  -H "Authorization: Bearer {token}"
+```
+
+**Resposta:**
+```json
+{
+  "success": true,
+  "events": [
+    {
+      "id": 1,
+      "device_id": "esp32-medication-box-001",
+      "compartment_id": 1,
+      "event_type": "opened",
+      "description": "Caixa de medicamentos aberta",
+      "event_timestamp": "2026-04-13T08:00:00Z",
+      "created_at": "2026-04-13T08:00:00Z"
+    },
+    {
+      "id": 2,
+      "device_id": "esp32-medication-box-001",
+      "compartment_id": 1,
+      "event_type": "taken",
+      "description": "Medicamento foi tomado",
+      "event_timestamp": "2026-04-13T08:02:00Z",
+      "created_at": "2026-04-13T08:02:00Z"
+    }
+  ]
+}
+```
+
 ---
 
 ## 🔍 Dicas Práticas

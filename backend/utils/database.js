@@ -1,12 +1,18 @@
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsPromises = fs.promises;
 const path = require('path');
 
 const DB_FILE = path.join(__dirname, '..', '..', 'database', 'db.json');
 
 // Garantir que o diretório existe
 const dbDir = path.dirname(DB_FILE);
-if (!fs.access(dbDir).catch(() => true)) {
-  require('fs').mkdirSync(dbDir, { recursive: true });
+
+async function ensureDatabaseDirectory() {
+  try {
+    await fsPromises.access(dbDir, fs.constants.F_OK);
+  } catch (err) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
 }
 
 let db = { users: [], medications: [], medication_schedules: [], medication_history: [], iot_devices: [], iot_notifications: [] };
@@ -14,7 +20,7 @@ let db = { users: [], medications: [], medication_schedules: [], medication_hist
 // Carregar dados do arquivo
 const loadDB = async () => {
   try {
-    const data = await fs.readFile(DB_FILE, 'utf8');
+    const data = await fsPromises.readFile(DB_FILE, 'utf8');
     db = JSON.parse(data);
   } catch (err) {
     // Arquivo não existe, usar dados padrão
@@ -51,11 +57,14 @@ const loadDB = async () => {
 
 // Salvar dados no arquivo
 const saveDB = async () => {
-  await fs.writeFile(DB_FILE, JSON.stringify(db, null, 2));
+  await fsPromises.writeFile(DB_FILE, JSON.stringify(db, null, 2));
 };
 
 // Inicializar
-loadDB();
+ensureDatabaseDirectory().then(loadDB).catch((error) => {
+  console.error('Erro ao garantir diretório do banco de dados:', error);
+  loadDB();
+});
 
 const query = async (sql, values = []) => {
   // Simulação simples de queries SQL para JSON

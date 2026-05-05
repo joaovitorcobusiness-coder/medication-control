@@ -76,7 +76,8 @@ router.put('/profile', authMiddleware, async (req, res) => {
       message: 'Perfil atualizado com sucesso',
     });
   } catch (error) {
-    console.error('Error updating profile:', error);
+    co
+    nsole.error('Error updating profile:', error);
     res.status(500).json({
       success: false,
       message: 'Erro ao atualizar perfil',

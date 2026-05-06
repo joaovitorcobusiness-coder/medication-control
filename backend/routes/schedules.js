@@ -46,7 +46,7 @@ router.get('/today', authMiddleware, async (req, res) => {
        LEFT JOIN medication_history mh ON ms.medication_id = mh.medication_id 
          AND mh.scheduled_date = ?
          AND mh.scheduled_time = ms.scheduled_time
-       WHERE ms.user_id = ? AND (ms.day_of_week LIKE ? OR ms.day_of_week IS NULL)
+       WHERE ms.user_id = ? AND (ms.day_of_week LIKE ? OR ms.day_of_week = 'Todos os dias' OR ms.day_of_week IS NULL)
        ORDER BY ms.scheduled_time ASC`,
       [today, req.userId, `%${currentDayName}%`]
     );

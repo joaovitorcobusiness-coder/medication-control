@@ -29,13 +29,10 @@
   border-bottom: 1px solid var(--gray-medium);
 }
 
-.form-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid var(--gray-medium);
+.form-hint {
+  color: var(--primary-color);
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 .medications-grid {

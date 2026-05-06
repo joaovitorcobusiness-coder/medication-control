@@ -8,8 +8,6 @@ export default function MedicationsPage() {
   const [medications, setMedications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [showScheduleForm, setShowScheduleForm] = useState(false);
-  const [selectedMedicationId, setSelectedMedicationId] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -20,10 +18,7 @@ export default function MedicationsPage() {
     start_date: '',
     end_date: '',
     notes: '',
-  });
-  const [scheduleData, setScheduleData] = useState({
-    scheduled_time: '',
-    day_of_week: 'Monday',
+    start_time: '08:00',
   });
   const [message, setMessage] = useState('');
 
@@ -54,12 +49,41 @@ export default function MedicationsPage() {
     e.preventDefault();
     
     try {
+      let medicationId;
+      
       if (editingId) {
         await medicationAPI.update(editingId, formData);
+        medicationId = editingId;
         setMessage('Medicamento atualizado com sucesso!');
       } else {
-        await medicationAPI.create(formData);
+        const response = await medicationAPI.create(formData);
+        medicationId = response.data.medication_id;
         setMessage('Medicamento adicionado com sucesso!');
+        
+        // Calcular horários baseado na frequência
+        const times = calculateScheduleTimes(formData.frequency, formData.start_time);
+        
+        // Gerar agendamentos automaticamente para novo medicamento
+        if (formData.start_date && formData.end_date && times.length > 0) {
+          try {
+            const start = new Date(formData.start_date);
+            const end = new Date(formData.end_date);
+            const currentDate = new Date(start);
+
+            while (currentDate <= end) {
+              for (const time of times) {
+                await scheduleAPI.create({
+                  medication_id: medicationId,
+                  scheduled_time: time,
+                  day_of_week: 'Todos os dias',
+                });
+              }
+              currentDate.setDate(currentDate.getDate() + 1);
+            }
+          } catch (err) {
+            console.error('Erro ao gerar agendamentos:', err);
+          }
+        }
       }
       
       loadMedications();
@@ -99,48 +123,56 @@ export default function MedicationsPage() {
       start_date: '',
       end_date: '',
       notes: '',
+      start_time: '08:00',
     });
     setEditingId(null);
     setShowForm(false);
   };
 
-  const handleScheduleChange = (e) => {
-    const { name, value } = e.target;
-    setScheduleData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const calculateScheduleTimes = (frequency, startTime) => {
+    const times = [];
+    const [hours, minutes] = startTime.split(':').map(Number);
+    let currentHour = hours;
 
-  const handleAddSchedule = async (e) => {
-    e.preventDefault();
-    
-    try {
-      if (!selectedMedicationId) {
-        setMessage('Selecione um medicamento');
-        return;
-      }
+    const addTime = (h) => {
+      const time = `${String(h).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      if (!times.includes(time)) times.push(time);
+    };
 
-      if (!scheduleData.scheduled_time) {
-        setMessage('Especifique o horário');
-        return;
-      }
-
-      await scheduleAPI.create({
-        medication_id: selectedMedicationId,
-        scheduled_time: scheduleData.scheduled_time,
-        day_of_week: scheduleData.day_of_week,
-      });
-
-      setMessage('Horário adicionado com sucesso!');
-      setScheduleData({ scheduled_time: '', day_of_week: 'Monday' });
-      setSelectedMedicationId(null);
-      setShowScheduleForm(false);
-      loadMedications();
-      setTimeout(() => setMessage(''), 3000);
-    } catch (err) {
-      setMessage('Erro ao adicionar horário');
+    switch (frequency) {
+      case 'Uma vez ao dia':
+        times.push(startTime);
+        break;
+      case 'Duas vezes ao dia':
+        addTime(currentHour);
+        addTime((currentHour + 12) % 24);
+        break;
+      case 'Três vezes ao dia':
+        addTime(currentHour);
+        addTime((currentHour + 8) % 24);
+        addTime((currentHour + 16) % 24);
+        break;
+      case 'A cada 2 horas':
+        for (let i = 0; i < 24; i += 2) {
+          addTime((currentHour + i) % 24);
+        }
+        break;
+      case 'A cada 3 horas':
+        for (let i = 0; i < 24; i += 3) {
+          addTime((currentHour + i) % 24);
+        }
+        break;
+      case 'A cada 6 horas':
+        addTime(currentHour);
+        addTime((currentHour + 6) % 24);
+        addTime((currentHour + 12) % 24);
+        addTime((currentHour + 18) % 24);
+        break;
+      default:
+        times.push(startTime);
     }
+
+    return times.sort();
   };
 
   if (loading) return <Layout><div className="loading">Carregando...</div></Layout>;
@@ -156,12 +188,6 @@ export default function MedicationsPage() {
               onClick={() => setShowForm(!showForm)}
             >
               <FiPlus /> {showForm ? 'Cancelar' : 'Adicionar Medicamento'}
-            </button>
-            <button 
-              className="btn btn-secondary"
-              onClick={() => setShowScheduleForm(!showScheduleForm)}
-            >
-              <FiPlus /> {showScheduleForm ? 'Cancelar' : 'Agendar Horário'}
             </button>
           </div>
         </div>
@@ -225,17 +251,39 @@ export default function MedicationsPage() {
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="frequency" className="label">Frequência *</label>
-                  <input
+                  <select
                     id="frequency"
-                    type="text"
                     name="frequency"
                     className="input"
-                    placeholder="Ex: 2x ao dia"
                     value={formData.frequency}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Selecione a frequência</option>
+                    <option value="Uma vez ao dia">Uma vez ao dia</option>
+                    <option value="Duas vezes ao dia">Duas vezes ao dia</option>
+                    <option value="Três vezes ao dia">Três vezes ao dia</option>
+                    <option value="A cada 2 horas">A cada 2 horas</option>
+                    <option value="A cada 3 horas">A cada 3 horas</option>
+                    <option value="A cada 6 horas">A cada 6 horas</option>
+                    <option value="Outro">Outro (especificar nas notas)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="start_time" className="label">Horário de Início *</label>
+                  <input
+                    id="start_time"
+                    type="time"
+                    name="start_time"
+                    className="input"
+                    value={formData.start_time}
                     onChange={handleChange}
                     required
                   />
                 </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="start_date" className="label">Data de Início</label>
                   <input
@@ -273,16 +321,20 @@ export default function MedicationsPage() {
               </div>
 
               <div className="form-group">
-                <label htmlFor="notes" className="label">Notas</label>
+                <label htmlFor="notes" className="label">Notas{formData.frequency === 'Outro' ? ' *' : ''}</label>
                 <textarea
                   id="notes"
                   name="notes"
                   className="input"
                   rows="2"
-                  placeholder="Ex: Tomar com comida, não tomar com leite"
+                  placeholder={formData.frequency === 'Outro' ? 'Especifique a frequência personalizada' : 'Ex: Tomar com comida, não tomar com leite'}
                   value={formData.notes}
                   onChange={handleChange}
+                  required={formData.frequency === 'Outro'}
                 />
+                {formData.frequency === 'Outro' && (
+                  <small className="form-hint">Por favor, especifique a frequência nas notas.</small>
+                )}
               </div>
 
               <div className="form-actions">
@@ -293,81 +345,6 @@ export default function MedicationsPage() {
                   type="button" 
                   className="btn btn-danger"
                   onClick={resetForm}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-
-        {showScheduleForm && (
-          <div className="form-card card">
-            <h2>Agendar Horário do Medicamento</h2>
-            <form onSubmit={handleAddSchedule}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="medication_select" className="label">Medicamento *</label>
-                  <select
-                    id="medication_select"
-                    className="input"
-                    value={selectedMedicationId || ''}
-                    onChange={(e) => setSelectedMedicationId(parseInt(e.target.value))}
-                    required
-                  >
-                    <option value="">Selecione um medicamento</option>
-                    {medications.map(med => (
-                      <option key={med.id} value={med.id}>
-                        {med.name} - {med.dosage} {med.unit}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="scheduled_time" className="label">Horário *</label>
-                  <input
-                    id="scheduled_time"
-                    type="time"
-                    name="scheduled_time"
-                    className="input"
-                    value={scheduleData.scheduled_time}
-                    onChange={handleScheduleChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="day_of_week" className="label">Dia da Semana *</label>
-                  <select
-                    id="day_of_week"
-                    name="day_of_week"
-                    className="input"
-                    value={scheduleData.day_of_week}
-                    onChange={handleScheduleChange}
-                    required
-                  >
-                    <option value="Monday">Segunda-feira</option>
-                    <option value="Tuesday">Terça-feira</option>
-                    <option value="Wednesday">Quarta-feira</option>
-                    <option value="Thursday">Quinta-feira</option>
-                    <option value="Friday">Sexta-feira</option>
-                    <option value="Saturday">Sábado</option>
-                    <option value="Sunday">Domingo</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button type="submit" className="btn btn-success">
-                  Agendar Horário
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-danger"
-                  onClick={() => {
-                    setShowScheduleForm(false);
-                    setSelectedMedicationId(null);
-                    setScheduleData({ scheduled_time: '', day_of_week: 'Monday' });
-                  }}
                 >
                   Cancelar
                 </button>

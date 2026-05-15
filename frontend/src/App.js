@@ -5,6 +5,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
+import CaregiverPage from './pages/CaregiverPage';
+import FamilyPage from './pages/FamilyPage';
 import MedicationsPage from './pages/MedicationsPage';
 import HistoryPage from './pages/HistoryPage';
 import SettingsPage from './pages/SettingsPage';
@@ -60,6 +62,8 @@ function App() {
             <Route path="/medicamentos" element={<PrivateRoute isAuthenticated={isAuthenticated}><MedicationsPage /></PrivateRoute>} />
             <Route path="/historico" element={<PrivateRoute isAuthenticated={isAuthenticated}><HistoryPage /></PrivateRoute>} />
             <Route path="/configuracoes" element={<PrivateRoute isAuthenticated={isAuthenticated}><SettingsPage /></PrivateRoute>} />
+            <Route path="/cuidador" element={<PrivateRoute isAuthenticated={isAuthenticated}><CaregiverPage /></PrivateRoute>} />
+            <Route path="/familiar" element={<PrivateRoute isAuthenticated={isAuthenticated}><FamilyPage /></PrivateRoute>} />
             <Route path="/admin" element={<PrivateRoute isAuthenticated={isAuthenticated}><AdminPage /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

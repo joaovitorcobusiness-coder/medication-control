@@ -39,7 +39,10 @@ export default function ProfilePage() {
     e.preventDefault();
     try {
       await userAPI.updateProfile(formData);
-      setUser(formData);
+      const updatedUser = { ...user, ...formData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      window.dispatchEvent(new Event('profileUpdate'));
+      setUser(updatedUser);
       setEditing(false);
       setMessage('Perfil atualizado com sucesso!');
       setTimeout(() => setMessage(''), 3000);
@@ -196,6 +199,20 @@ export default function ProfilePage() {
                 </div>
               </div>
 
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="caregiver_email" className="label">Email do Cuidador</label>
+                  <input
+                    id="caregiver_email"
+                    type="email"
+                    name="caregiver_email"
+                    className="input"
+                    value={formData.caregiver_email || ''}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
               <button type="submit" className="btn btn-success">
                 <FiSave /> Salvar Alterações
               </button>
@@ -225,6 +242,10 @@ export default function ProfilePage() {
               <div className="detail-row">
                 <span className="detail-label">Telefone de Emergência:</span>
                 <span className="detail-value">{user?.emergency_phone || '-'}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">Email do Cuidador:</span>
+                <span className="detail-value">{user?.caregiver_email || '-'}</span>
               </div>
             </div>
           )}

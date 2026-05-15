@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiHome, FiPackage, FiClock, FiUser, FiSettings, FiLogOut } from 'react-icons/fi';
+import { FiHome, FiPackage, FiClock, FiUser, FiSettings, FiLogOut, FiHeart, FiUsers } from 'react-icons/fi';
 import './Layout.css';
 
 export default function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : {};
+  });
+
+  useEffect(() => {
+    const updateUser = () => {
+      const stored = localStorage.getItem('user');
+      setUser(stored ? JSON.parse(stored) : {});
+    };
+
+    window.addEventListener('profileUpdate', updateUser);
+    return () => window.removeEventListener('profileUpdate', updateUser);
+  }, []);
+
+  const hasCaregiver = !!user?.caregiver_email;
+  const hasFamily = !!(user?.emergency_contact || user?.emergency_phone);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -55,6 +72,24 @@ export default function Layout({ children }) {
             >
               <FiUser /> Perfil
             </a>
+            {hasCaregiver && (
+              <a 
+                href="/cuidador" 
+                className={`nav-link ${isActive('/cuidador') ? 'active' : ''}`}
+                onClick={(e) => { e.preventDefault(); navigate('/cuidador'); }}
+              >
+                <FiHeart /> Cuidador
+              </a>
+            )}
+            {hasFamily && (
+              <a 
+                href="/familiar" 
+                className={`nav-link ${isActive('/familiar') ? 'active' : ''}`}
+                onClick={(e) => { e.preventDefault(); navigate('/familiar'); }}
+              >
+                <FiUsers /> Familiar
+              </a>
+            )}
             <a 
               href="/configuracoes" 
               className={`nav-link ${isActive('/configuracoes') ? 'active' : ''}`}
@@ -110,6 +145,26 @@ export default function Layout({ children }) {
           <FiUser />
           <span>Perfil</span>
         </a>
+        {hasCaregiver && (
+          <a 
+            href="/cuidador" 
+            className={`bottom-nav-item ${isActive('/cuidador') ? 'active' : ''}`}
+            onClick={(e) => { e.preventDefault(); navigate('/cuidador'); }}
+          >
+            <FiHeart />
+            <span>Cuidador</span>
+          </a>
+        )}
+        {hasFamily && (
+          <a 
+            href="/familiar" 
+            className={`bottom-nav-item ${isActive('/familiar') ? 'active' : ''}`}
+            onClick={(e) => { e.preventDefault(); navigate('/familiar'); }}
+          >
+            <FiUsers />
+            <span>Familiar</span>
+          </a>
+        )}
       </nav>
     </div>
   );

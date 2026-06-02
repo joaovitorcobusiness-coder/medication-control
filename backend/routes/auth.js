@@ -6,6 +6,40 @@ const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
+const DEMO_ACCOUNTS = {
+  'funcionario@teste.com': { name: 'Funcionário Teste', password: 'Funcionario@123', role: 'funcionario' },
+  'paciente@teste.com': { name: 'Paciente Teste', password: 'Paciente@123', role: 'patient' },
+  'cuidador@teste.com': { name: 'Cuidador Teste', password: 'Cuidador@123', role: 'caregiver' },
+  'familiar@teste.com': { name: 'Familiar Teste', password: 'Familiar@123', role: 'family' },
+};
+
+const getUserRole = (email) => {
+  const normalizedEmail = String(email || '').toLowerCase();
+
+  if (normalizedEmail.includes('funcionario') || normalizedEmail.includes('admin')) return 'funcionario';
+  if (normalizedEmail.includes('paciente')) return 'patient';
+  if (normalizedEmail.includes('cuidador')) return 'caregiver';
+  if (normalizedEmail.includes('familiar')) return 'family';
+
+  return 'user';
+};
+
+const getDemoUser = (email, password) => {
+  const demoUser = DEMO_ACCOUNTS[email.toLowerCase()];
+
+  if (!demoUser || demoUser.password !== password) {
+    return null;
+  }
+
+  return {
+    id: 0,
+    name: demoUser.name,
+    email,
+    phone: '11999990000',
+    role: demoUser.role,
+  };
+};
+
 // Login
 router.post('/login', 
   body('email').isEmail(),
@@ -18,6 +52,21 @@ router.post('/login',
 
     try {
       const { email, password } = req.body;
+      const demoUser = getDemoUser(email, password);
+
+      if (demoUser) {
+        const token = jwt.sign(
+          { userId: demoUser.id, email: demoUser.email, role: demoUser.role },
+          process.env.JWT_SECRET || 'your-secret-key',
+          { expiresIn: '7d' }
+        );
+
+        return res.json({
+          success: true,
+          token,
+          user: demoUser,
+        });
+      }
       
       const results = await query('SELECT * FROM users WHERE email = ?', [email]);
       
@@ -52,6 +101,7 @@ router.post('/login',
           name: user.name,
           email: user.email,
           phone: user.phone,
+          role: getUserRole(user.email),
         },
       });
     } catch (error) {
@@ -112,3 +162,6 @@ router.post('/register',
 );
 
 module.exports = router;
+module.exports.getDemoUser = getDemoUser;
+module.exports.getUserRole = getUserRole;
+module.exports.DEMO_ACCOUNTS = DEMO_ACCOUNTS;

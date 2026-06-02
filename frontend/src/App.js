@@ -16,6 +16,36 @@ import { ToastProvider } from './components/Toast';
 import { registerServiceWorker, registerBackgroundSync } from './utils/serviceWorkerUtils';
 import notificationService from './services/notificationService';
 
+function getRoleFromUser(user) {
+  if (user?.role) return user.role;
+
+  const normalizedEmail = String(user?.email || '').toLowerCase();
+  if (normalizedEmail.includes('funcionario') || normalizedEmail.includes('admin')) return 'funcionario';
+  if (normalizedEmail.includes('paciente')) return 'patient';
+  if (normalizedEmail.includes('cuidador')) return 'caregiver';
+  if (normalizedEmail.includes('familiar')) return 'family';
+  return 'user';
+}
+
+function HomeRoute() {
+  const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const role = getRoleFromUser(storedUser);
+
+  if (role === 'funcionario') {
+    return <AdminPage />;
+  }
+
+  if (role === 'caregiver') {
+    return <CaregiverPage />;
+  }
+
+  if (role === 'family') {
+    return <FamilyPage />;
+  }
+
+  return <Dashboard />;
+}
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -57,7 +87,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/" element={<PrivateRoute isAuthenticated={isAuthenticated}><Dashboard /></PrivateRoute>} />
+            <Route path="/" element={<PrivateRoute isAuthenticated={isAuthenticated}><HomeRoute /></PrivateRoute>} />
             <Route path="/perfil" element={<PrivateRoute isAuthenticated={isAuthenticated}><ProfilePage /></PrivateRoute>} />
             <Route path="/medicamentos" element={<PrivateRoute isAuthenticated={isAuthenticated}><MedicationsPage /></PrivateRoute>} />
             <Route path="/historico" element={<PrivateRoute isAuthenticated={isAuthenticated}><HistoryPage /></PrivateRoute>} />

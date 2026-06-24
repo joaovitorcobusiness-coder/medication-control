@@ -75,7 +75,7 @@ app.listen(PORT, async () => {
 });
 
 // Health check
-app.get('/api/dbteste', (req, res) => {
+app.get('/api/dbteste', async (req, res) => {
   try {
     const results = await query('SELECT * FROM users');
     

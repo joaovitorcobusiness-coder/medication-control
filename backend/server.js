@@ -77,11 +77,11 @@ app.listen(PORT, async () => {
 app.get('/api/env', async (req, res) => {
   res.json({
     success: true,
-    dbHost: process.env.DB_HOST,
-    dbUser: process.env.DB_USER,
-    dbPassword: process.env.DB_PASSWORD,
-    dbName: process.env.DB_NAME,
-    dbPort: process.env.DB_PORT,
+    dbHost: process.env.DB_HOST || 'localhost',
+    dbUser: process.env.DB_USER || 'root',
+    dbPassword: process.env.DB_PASSWORD || '',
+    dbName: process.env.DB_NAME || 'medication_control',
+    dbPort: process.env.DB_PORT || 3306,
   });
 });
 

@@ -1,0 +1,94 @@
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  date_of_birth DATE,
+  phone VARCHAR(30),
+  cpf VARCHAR(20) UNIQUE,
+  address VARCHAR(255),
+  city VARCHAR(100),
+  state VARCHAR(50),
+  zip_code VARCHAR(20),
+  emergency_contact VARCHAR(150),
+  emergency_phone VARCHAR(30),
+  caregiver_email VARCHAR(150),
+  profile_photo LONGBLOB,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS medications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  description TEXT,
+  dosage VARCHAR(100),
+  unit VARCHAR(50),
+  frequency VARCHAR(100),
+  start_date DATE,
+  end_date DATE,
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS medication_schedules (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  medication_id INT NOT NULL,
+  user_id INT NOT NULL,
+  scheduled_time TIME NOT NULL,
+  day_of_week VARCHAR(50),
+  reminder_enabled BOOLEAN DEFAULT TRUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS medication_history (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  medication_id INT NOT NULL,
+  user_id INT NOT NULL,
+  scheduled_date DATE NOT NULL,
+  scheduled_time TIME NOT NULL,
+  taken_time DATETIME,
+  status VARCHAR(50) DEFAULT 'pending',
+  notes TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS iot_devices (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  device_id VARCHAR(255) UNIQUE NOT NULL,
+  device_name VARCHAR(150),
+  device_type VARCHAR(50) DEFAULT 'mobile',
+  platform VARCHAR(50),
+  token TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  last_connected DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS iot_notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  medication_id INT,
+  device_id VARCHAR(255),
+  notification_type VARCHAR(50) DEFAULT 'reminder',
+  title VARCHAR(255),
+  message TEXT,
+  is_sent BOOLEAN DEFAULT FALSE,
+  sent_at DATETIME,
+  scheduled_for DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (medication_id) REFERENCES medications(id) ON DELETE SET NULL
+);

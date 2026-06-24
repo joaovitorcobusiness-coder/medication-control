@@ -98,6 +98,11 @@ app.get('/api/dbteste', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro ao obter perfil',
+      stack: error.stack,
+      error: error.message,
+      errorCode: error.code,
+      erro: error,
+
     });
   }
 });

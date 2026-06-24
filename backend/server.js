@@ -74,14 +74,20 @@ app.listen(PORT, async () => {
   });
 });
 
-app.get('/api/env', async (req, res) => {
+app.get('/api/env', (req, res) => {
   res.json({
-    success: true,
-    dbHost: process.env.DB_HOST || 'localhost',
-    dbUser: process.env.DB_USER || 'root',
-    dbPassword: process.env.DB_PASSWORD || '',
-    dbName: process.env.DB_NAME || 'medication_control',
-    dbPort: process.env.DB_PORT || 3306,
+    DB_HOST: process.env.DB_HOST,
+    DB_USER: process.env.DB_USER,
+    DB_NAME: process.env.DB_NAME,
+    DB_PORT: process.env.DB_PORT,
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    allDbVars: Object.keys(process.env)
+      .filter(k => k.startsWith("DB"))
+      .reduce((obj, k) => {
+        obj[k] = process.env[k];
+        return obj;
+      }, {})
   });
 });
 

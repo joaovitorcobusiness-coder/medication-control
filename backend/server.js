@@ -74,8 +74,9 @@ app.listen(PORT, async () => {
   });
 });
 
-app.get('/api/env', (req, res) => {
+app.get('/api/env', async (req, res) => {
   res.json({
+    success: true,
     dbHost: process.env.DB_HOST,
     dbUser: process.env.DB_USER,
     dbPassword: process.env.DB_PASSWORD,

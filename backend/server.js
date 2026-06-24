@@ -74,6 +74,16 @@ app.listen(PORT, async () => {
   });
 });
 
+app.get('/api/env', (req, res) => {
+  res.json({
+    dbHost: process.env.DB_HOST,
+    dbUser: process.env.DB_USER,
+    dbPassword: process.env.DB_PASSWORD,
+    dbName: process.env.DB_NAME,
+    dbPort: process.env.DB_PORT,
+  });
+});
+
 // Health check
 app.get('/api/dbteste', async (req, res) => {
   try {

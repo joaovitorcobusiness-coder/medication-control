@@ -20,6 +20,7 @@ const medicationRoutes = require('./routes/medications');
 const scheduleRoutes = require('./routes/schedules');
 const historyRoutes = require('./routes/history');
 const iotRoutes = require('./routes/iot');
+const { query } = require('./utils/database');
 
 // Usar rotas
 app.use('/api/auth', authRoutes);
@@ -71,6 +72,34 @@ app.listen(PORT, async () => {
   schedule.scheduleJob('0 22 * * *', async () => {
     await iotService.createMedicationReminders();
   });
+});
+
+// Health check
+app.get('/api/dbteste', (req, res) => {
+  try {
+    const results = await query('SELECT * FROM users');
+    
+    if (results.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado',
+      });
+    }
+
+    const user = results[0];
+    delete user.password; // Não enviar senha
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error('Error getting profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao obter perfil',
+    });
+  }
 });
 
 module.exports = app;

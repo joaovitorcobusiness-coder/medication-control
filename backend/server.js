@@ -5,6 +5,9 @@ const mysql = require('mysql2/promise');
 const iotService = require('./services/iotNotificationService');
 
 dotenv.config();
+console.log("DB_HOST =", process.env.DB_HOST);
+console.log("DB_USER =", process.env.DB_USER);
+console.log("DB_NAME =", process.env.DB_NAME);
 
 const app = express();
 
@@ -83,7 +86,6 @@ app.get('/api/env', (req, res) => {
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT,
     allDbVars: Object.keys(process.env)
-      .filter(k => k.startsWith("DB"))
       .reduce((obj, k) => {
         obj[k] = process.env[k];
         return obj;
